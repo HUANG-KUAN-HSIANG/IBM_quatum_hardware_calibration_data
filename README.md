@@ -5,7 +5,7 @@ Final project analysing historical calibration data of three IBM quantum compute
 
 ## Research questions
 
-1. How stable are T1 and T2 over 30, 60 and 90 days?
+1. How stable are T1 and T2 over 30, 60, 90, and 180 days?
 2. Are high-error qubits clustered together physically on the chip, or distributed uniformly?
 3. How often does a qubit experience sudden "glitches" (dramatic spikes in error rates) between calibration snapshots?
 
