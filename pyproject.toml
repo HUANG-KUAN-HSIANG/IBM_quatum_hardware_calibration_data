@@ -1,0 +1,15 @@
+[project]
+name = "ibm-quatum-hardware-calibration-data"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "networkx>=3.7",
+    "numpy>=2.5.4",
+    "pandas>=3.0.6",
+    "qiskit-ibm-runtime>=0.50.0",
+    "scipy>=1.18.1",
+    "seaborn>=0.13.2",
+]

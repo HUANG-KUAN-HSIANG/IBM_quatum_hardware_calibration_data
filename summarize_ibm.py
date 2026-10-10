@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 # ----------------------------- config ---------------------------------------
-WINDOWS_DAYS = [30, 60, 90]
+WINDOWS_DAYS = [30, 60, 90, 180]
 METRICS = ["T1", "T2", "readout_error"]       # variables used for the 3 questions
 HIGH_ERR_METRIC = "readout_error"
 HIGH_ERR_MAD_K = 3.0                          # high error = median + K * MAD (across qubits)
@@ -206,7 +206,7 @@ def clean(df, unit_cols):
         bad = df["T2"] > 2 * df["T1"] * 1.001           # physical limit T2 <= 2*T1
         flags["T2 > 2*T1 (unphysical, kept but flagged)"] = int(bad.sum())
         df["flag_T2_gt_2T1"] = bad
-    for m in ("readout_error", "prob_meas0_prob1", "prob_meas1_prob0"):
+    for m in ("readout_error", "prob_meas0_prep1", "prob_meas1_prep0"):
         if m in df.columns:
             bad = (df[m] < 0) | (df[m] > 1)
             flags[f"{m} outside [0,1]"] = int(bad.sum())
@@ -235,9 +235,11 @@ def clean(df, unit_cols):
 
 # ----------------------------- 3. Q1: T1/T2 stability -----------------------
 def t1t2_windows(df, outdir):
-    section("3. Q1  T1 / T2 STABILITY OVER 30 / 60 / 90 DAYS")
+    section("3. Q1  T1 / T2 STABILITY OVER 30 / 60 / 90 / 180 DAYS")
     out("Windows end at the last snapshot of each backend. CV = std / mean per qubit "
-        "(then the median over qubits is reported).\n")
+        "(then the median over qubits is reported).")
+    out("median_abs_daily_change is the median, across qubits, of the absolute relative change "
+        "between consecutive calendar days (each day is that qubit's median).\n")
     rows = []
     for b, g in df.groupby("backend"):
         end = g["snapshot_time"].max()
@@ -249,9 +251,14 @@ def t1t2_windows(df, outdir):
                 per_q = gw.groupby("qubit")[m].agg(["mean", "std", "count"])
                 per_q = per_q[per_q["count"] >= 3]
                 cv = per_q["std"] / per_q["mean"]
-                # day-to-day relative change
+                # day-to-day relative change (one median per qubit per calendar day)
                 s = gw.sort_values("snapshot_time")
-                rel = s.groupby("qubit")[m].apply(lambda x: x.pct_change().abs()).dropna()
+                daily_q = (
+                    s.assign(day=s["snapshot_time"].dt.floor("D"))
+                    .groupby(["qubit", "day"], sort=True)[m]
+                    .median()
+                )
+                rel = daily_q.groupby(level="qubit").pct_change().abs()
                 # backend-level trend: slope of the daily median, in % per 30 days
                 daily = s.groupby(s["snapshot_time"].dt.floor("D"))[m].median().dropna()
                 slope_pct = np.nan
