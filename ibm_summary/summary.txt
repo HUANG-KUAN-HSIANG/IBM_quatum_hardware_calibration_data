@@ -1,0 +1,157 @@
+
+======================================================================
+1. DATA QUALITY CHECK
+======================================================================
+File: ibm_calibration_history.csv  (43.8 MB)
+Shape: 305,292 rows x 17 columns (memory 116.8 MB)
+Value columns (7): ['T1', 'T2', 'readout_error', 'prob_meas0_prep1', 'prob_meas1_prep0', 'readout_length', 'init_error']
+Unit columns  (7): ['T1_unit', 'T2_unit', 'readout_error_unit', 'prob_meas0_prep1_unit', 'prob_meas1_prep0_unit', 'readout_length_unit', 'init_error_unit']
+
+Unparseable snapshot_time: 0
+
+Units (unique values per unit column):
+  T1_unit                      ['us']
+  T2_unit                      ['us']
+  readout_error_unit           []
+  prob_meas0_prep1_unit        []
+  prob_meas1_prep0_unit        []
+  readout_length_unit          ['ns']
+  init_error_unit              []
+
+Missing values (value columns, only those > 0):
+            n_missing    pct
+T1                877  0.287
+T2               1397  0.458
+init_error     234905 76.944
+
+Duplicate (backend, snapshot_time, qubit): 0   fully identical rows: 0
+
+Coverage per backend:
+                 rows  qubits  snapshots                     first                      last  span_days
+backend                                                                                                
+ibm_fez        101244     156        649 2026-03-31 14:05:01+00:00 2026-09-27 14:07:59+00:00    180.002
+ibm_kingston   104988     156        673 2026-03-31 14:15:19+00:00 2026-09-27 13:55:36+00:00    179.986
+ibm_marrakesh   99060     156        635 2026-03-31 13:59:22+00:00 2026-09-27 14:13:05+00:00    180.010
+
+Snapshots with fewer qubits than the backend max: 0
+
+Gaps between consecutive snapshots > 1.5 days:
+  ibm_fez: 7 gaps, largest 3.4 d (e.g. ending 2026-04-06)
+  ibm_fez: median spacing 0.25 d  (649 snapshots)
+  ibm_kingston: 3 gaps, largest 3.9 d (e.g. ending 2026-04-06)
+  ibm_kingston: median spacing 0.25 d  (673 snapshots)
+  ibm_marrakesh: 4 gaps, largest 4.9 d (e.g. ending 2026-04-06)
+  ibm_marrakesh: median spacing 0.25 d  (635 snapshots)
+
+======================================================================
+2. CLEANING
+======================================================================
+  - T1/T2 converted to microseconds
+  - dropped rows with bad snapshot_time: 0
+  - dropped duplicate (backend, snapshot_time, qubit): 0
+  - flag: T1 <= 0: 0
+  - flag: T2 <= 0: 0
+  - flag: T2 > 2*T1 (unphysical, kept but flagged): 1005
+  - flag: readout_error outside [0,1]: 0
+  - flag: prob_meas0_prep1 outside [0,1]: 0
+  - flag: prob_meas1_prep0 outside [0,1]: 0
+  - flag: T1 > 1000 us (suspicious, kept): 0
+  - flag: T2 > 1000 us (suspicious, kept): 0
+  - dropped rows where all of ['T1', 'T2', 'readout_error'] are missing: 0
+
+Rows: 305,292 -> 305,292   columns: 11
+Saved cleaned data to ibm_summary/ibm_calibration_clean.csv
+
+======================================================================
+3. Q1  T1 / T2 STABILITY OVER 30 / 60 / 90 / 180 DAYS
+======================================================================
+Windows end at the last snapshot of each backend. CV = std / mean per qubit (then the median over qubits is reported).
+median_abs_daily_change is the median, across qubits, of the absolute relative change between consecutive calendar days (each day is that qubit's median).
+
+      backend  window_days metric  n_snapshots  mean_us  median_us  p10_us  p90_us  median_qubit_CV  p90_qubit_CV  median_abs_daily_change  trend_pct_per_30d
+      ibm_fez           30     T1          114  130.785    127.661  74.616 189.379            0.243         0.309                    0.182             -6.152
+      ibm_fez           30     T2          114   97.335     93.032  28.960 172.256            0.214         0.315                    0.136             -3.899
+      ibm_fez           60     T1          205  129.972    127.355  74.035 188.304            0.261         0.305                    0.178              1.044
+      ibm_fez           60     T2          205   96.307     92.064  28.916 170.686            0.223         0.318                    0.133              0.256
+      ibm_fez           90     T1          312  129.648    127.363  73.297 187.773            0.263         0.302                    0.171              0.302
+      ibm_fez           90     T2          312   96.555     92.915  28.605 170.680            0.228         0.311                    0.128             -1.439
+      ibm_fez          180     T1          648  133.768    130.180  78.691 193.727            0.260         0.296                    0.149             -1.781
+      ibm_fez          180     T2          648   97.869     94.725  28.659 173.159            0.233         0.292                    0.124             -1.855
+ ibm_kingston           30     T1          116  231.901    234.638 124.779 335.899            0.235         0.332                    0.187             -3.891
+ ibm_kingston           30     T2          116  165.867    139.848  39.699 324.056            0.209         0.301                    0.141             -0.796
+ ibm_kingston           60     T1          222  234.902    238.012 127.505 336.293            0.241         0.303                    0.166             -2.643
+ ibm_kingston           60     T2          222  162.779    139.285  35.965 318.990            0.219         0.305                    0.121              1.239
+ ibm_kingston           90     T1          330  235.445    238.498 129.894 336.293            0.238         0.301                    0.157             -0.944
+ ibm_kingston           90     T2          330  162.152    138.655  35.591 316.497            0.215         0.307                    0.117              0.426
+ ibm_kingston          180     T1          673  238.990    238.604 136.391 343.470            0.248         0.288                    0.127             -1.869
+ ibm_kingston          180     T2          673  157.543    135.020  35.315 307.968            0.225         0.322                    0.108              0.447
+ibm_marrakesh           30     T1          106  168.005    159.902  81.917 270.967            0.251         0.331                    0.186              0.942
+ibm_marrakesh           30     T2          106   94.077     72.043  21.350 191.620            0.325         0.487                    0.257              5.708
+ibm_marrakesh           60     T1          188  167.074    158.526  79.280 272.950            0.268         0.343                    0.184              1.417
+ibm_marrakesh           60     T2          188   91.551     70.020  20.865 187.960            0.344         0.503                    0.246              3.072
+ibm_marrakesh           90     T1          295  167.266    157.472  79.481 273.129            0.271         0.336                    0.182              1.244
+ibm_marrakesh           90     T2          295   94.755     74.531  21.493 192.639            0.346         0.522                    0.242             -5.959
+ibm_marrakesh          180     T1          634  181.509    171.202  87.800 295.618            0.256         0.323                    0.160             -3.817
+ibm_marrakesh          180     T2          634  106.509     86.030  23.086 214.281            0.334         0.508                    0.211             -7.476
+
+Reading guide: lower CV / daily change = more stable. trend_pct_per_30d > 0 means the backend median is improving; < 0 degrading.
+
+======================================================================
+4. Q2  HIGH-ERROR QUBITS (and spatial clustering)
+======================================================================
+High-error rule: per-qubit mean readout_error over all snapshots > median + 3.0 x MAD (computed across the qubits of one backend).
+
+ibm_fez: threshold 0.0261, high-error qubits 33/156
+  top 10 qubits: [[72.0, 0.3857], [17.0, 0.1556], [83.0, 0.1519], [11.0, 0.1021], [43.0, 0.1014], [113.0, 0.0956], [131.0, 0.09], [41.0, 0.0889], [65.0, 0.0767], [149.0, 0.0649]]
+ibm_kingston: threshold 0.0212, high-error qubits 34/156
+  top 10 qubits: [[146.0, 0.4983], [121.0, 0.2154], [113.0, 0.162], [96.0, 0.1403], [120.0, 0.0996], [131.0, 0.0986], [16.0, 0.0905], [82.0, 0.0853], [127.0, 0.0846], [1.0, 0.0733]]
+ibm_marrakesh: threshold 0.0346, high-error qubits 28/156
+  top 10 qubits: [[130.0, 0.4867], [82.0, 0.4348], [113.0, 0.3408], [83.0, 0.1648], [119.0, 0.1591], [94.0, 0.1272], [79.0, 0.0934], [26.0, 0.0892], [23.0, 0.072], [37.0, 0.0708]]
+
+Distribution of per-row readout_error:
+                    count  mean   std   min   50%   90%   99%   max
+backend                                                            
+ibm_fez       101,244.000 0.024 0.046 0.001 0.011 0.052 0.265 0.517
+ibm_kingston  104,988.000 0.023 0.059 0.000 0.009 0.034 0.433 0.569
+ibm_marrakesh  99,060.000 0.031 0.070 0.000 0.012 0.054 0.480 0.542
+
+Spatial test: are high-error qubits adjacent to each other more often than chance?
+  statistic = number of coupled pairs where BOTH qubits are high-error; null = 10,000 random relabelings of the same number of high-error qubits.
+
+      backend  n_high  adjacent_high_pairs  expected_by_chance  p_value_clustered
+      ibm_fez      33                    5               7.678              0.930
+ ibm_kingston      34                   10               8.162              0.279
+ibm_marrakesh      28                    8               5.492              0.155
+
+Small p (< 0.05) = high-error qubits cluster; large p = consistent with uniform scatter. With few high-error qubits the test has low power.
+
+======================================================================
+5. Q3  GLITCHES (sudden spikes vs. a qubit's own recent baseline)
+======================================================================
+Glitch = value differs from the rolling median of the previous 14 snapshots by robust z > 5.0 AND > 30% relative change.
+CAUTION: IBM publishes about one calibration per day, so this finds jumps between consecutive calibrations, not spikes inside a day.
+
+      backend        metric  down   up  total  n_obs  glitches_per_1000_obs
+      ibm_fez            T1  1926 1784   3710 101199                 36.660
+      ibm_fez            T2  1981 1216   3197 100724                 31.740
+      ibm_fez readout_error   154 3817   3971 101244                 39.222
+ ibm_kingston            T1  2104 2242   4346 104315                 41.662
+ ibm_kingston            T2  1896 1390   3286 104315                 31.501
+ ibm_kingston readout_error   192 3928   4120 104988                 39.243
+ibm_marrakesh            T1  1967 1099   3066  98901                 31.001
+ibm_marrakesh            T2  2019 1499   3518  98856                 35.587
+ibm_marrakesh readout_error    71 6745   6816  99060                 68.807
+
+Qubits with the most glitches (top 10 per backend, all metrics):
+  ibm_fez: [[11, 211], [64, 110], [13, 109], [5, 108], [51, 104], [33, 102], [31, 100], [140, 99], [115, 99], [103, 97]]
+  ibm_kingston: [[117, 145], [107, 144], [120, 142], [132, 137], [122, 125], [47, 123], [77, 112], [27, 111], [127, 108], [89, 108]]
+  ibm_marrakesh: [[108, 148], [43, 133], [24, 129], [57, 124], [67, 123], [29, 121], [140, 118], [66, 117], [45, 117], [111, 115]]
+
+Qubit-backend pairs with >= 1 glitch: 467
+Largest 5 events:
+      backend  qubit        metric             snapshot_time  value  baseline  rel_change  robust_z direction
+ ibm_kingston    134 readout_error 2026-06-11 17:16:24+00:00  0.500     0.003     145.357   288.966        up
+ ibm_kingston    154 readout_error 2026-06-12 02:10:48+00:00  0.514     0.004     130.562   289.028        up
+ ibm_kingston    154 readout_error 2026-06-11 17:16:24+00:00  0.514     0.004     130.562   512.368        up
+ibm_marrakesh      6 readout_error 2026-07-31 07:20:05+00:00  0.404     0.003     126.423   354.728        up
+ ibm_kingston    134 readout_error 2026-06-12 02:10:48+00:00  0.500     0.004     119.529   249.194        up

@@ -89,7 +89,7 @@ The raw dataset and `coupling_map.csv` are already in the repository, so **steps
 ## Methods in brief
 
 - **Cleaning:** drop duplicates, convert T1/T2 to microseconds, flag impossible values (for example T2 > 2 x T1), drop the unit columns.
-- **Q1 (stability):** per backend and per window (30/60/90 days back from the last snapshot), the per-qubit coefficient of
+- **Q1 (stability):** per backend and per window (30/60/90/180 days back from the last snapshot), the per-qubit coefficient of
   variation of T1 and T2 and the trend of the backend median.
 - **Q2 (spatial clustering):** a qubit is "high-error" if its mean readout error is above median + 3 x MAD within its backend.
   A permutation test (10,000 shuffles) compares the number of adjacent high-error pairs on the coupling map with chance.
