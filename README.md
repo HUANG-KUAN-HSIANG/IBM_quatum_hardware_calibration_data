@@ -19,6 +19,9 @@ Final project analysing historical calibration data of three IBM quantum compute
 | `coupling_map.csv` | Qubit connections (`backend,q1,q2`) of the three chips. |
 | `ibm_calibration_history.csv` | Raw dataset (about 44 MB), so you can run the analysis without an IBM account. |
 | `figures/` | PNG figures produced by `plot_ibm.py` (chip maps, distributions, heatmaps, correlations). |
+| `dashboard.py` | Interactive Plotly Dash dashboard for exploring the data (see [Dashboard](#dashboard)). |
+| `prepare_dashboard_data.py` | Builds the small data files in `dashboard_data/` that the dashboard reads. |
+| `dashboard_data/` | Pre-computed dashboard data (about 1.8 MB): daily medians per qubit, glitch events, chip layout. |
 | `requirements.txt` | Python packages needed. |
 | `.gitignore` | Keeps credentials, caches and generated folders out of the repository. |
 
@@ -85,6 +88,52 @@ The raw dataset and `coupling_map.csv` are already in the repository, so **steps
    python plot_ibm.py
    ```
    Figures are saved in `figures/`.
+
+## Dashboard
+
+An interactive dashboard to explore the calibration data of the three chips.
+
+![Dashboard screenshot](figures/dashboard.png)
+
+### Run it
+
+The data the dashboard needs is already in `dashboard_data/`, so after the [Setup](#setup) step it is one command:
+
+```bash
+python dashboard.py              # or: uv run python dashboard.py
+```
+
+Then open **http://127.0.0.1:8050** in a browser. Stop it with `Ctrl+C`.
+
+### What the data is
+
+To keep it small and fast, the dashboard does not read the 305,292 raw snapshot rows. It reads a summary:
+the **daily median of each qubit** (3 backends x 156 qubits x about 175 days = 80,808 rows), for six variables
+(T1, T2, readout error, the two measurement-error probabilities, readout length). `init_error` (77% missing) and the
+unit columns are left out. Glitch events come from `summarize_ibm.py`; when the same calibration value is repeated over
+several snapshots, it is counted as one event.
+
+To rebuild `dashboard_data/` (for example after downloading new data), run steps 3 above, then:
+
+```bash
+python prepare_dashboard_data.py
+```
+
+### What you can do
+
+All views follow the controls at the top: **backend**, **metric**, **date range** and **linear/log scale**
+(error rates switch to log scale automatically, because their distributions are very skewed).
+
+| View | What it shows |
+|---|---|
+| **Summary tiles** | Median T1, T2 and readout error, and the number of glitch events, for the selected backend and dates. |
+| **Chip map** | The 156 qubits placed by their physical connections (same layout as `fig1`), colored by the selected metric. Shows either the median over the date range or a **single day** chosen with the slider; **Play** steps through the days. |
+| **Qubit detail** | T1, T2 and readout error of one qubit over time against the chip median, with glitch events marked as triangles. **Click a qubit on the chip map or a row of the heatmap** to select it. |
+| **Qubit x day heatmap** | Every qubit (row) on every day (column). Horizontal streaks are qubits that stay bad or good; vertical stripes are events that hit the whole chip at once. |
+| **Backend comparison** | Daily median of the selected metric for the three backends, with the 10th-90th percentile across qubits as a band. |
+
+Colors use one fixed range per backend and metric (2nd-98th percentile over the whole period), so colors stay
+comparable when moving the slider or changing dates.
 
 ## Methods in brief
 
