@@ -122,14 +122,13 @@ An interactive dashboard to explore the calibration data of the three chips.
 ./run.sh prepare-dashboard
 ```
 
-
 2. Run the dashboard:
 ```bash
 ./run.sh dashboard
 ```
-To rebuild `dashboard_data/` (for example after downloading new data), re-run the command: `./run.sh prepare-dashboard`.
+Then open `http://127.0.0.1:8050` in a browser. Stop it with `Ctrl+C`.
 
-1. Then open `http://127.0.0.1:8050` in a browser. Stop it with `Ctrl+C`.
+- To rebuild `dashboard_data/` (for example after downloading new data), re-run the command: `./run.sh prepare-dashboard`.
 
 ### What the dashboard shows
 
